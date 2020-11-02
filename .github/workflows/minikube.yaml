@@ -4,7 +4,7 @@ on:
   - push
 
 jobs:
-  x509_membership_auth:
+  minikube:
     runs-on: ubuntu-latest
     steps:
 
