@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb
+  labels:
+    app.kubernetes.io/name: mariadb
+    app.kubernetes.io/instance: mariadb-example
+    app.kubernetes.io/version: "10.5"
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: bookstack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mariadb
+      app.kubernetes.io/instance: mariadb-example
+      app.kubernetes.io/version: "10.5"
+      app.kubernetes.io/component: database
+      app.kubernetes.io/part-of: bookstack
+  template:
+    metadata:
+      name: bookstack
+      labels:
+        app.kubernetes.io/name: mariadb
+        app.kubernetes.io/instance: mariadb-example
+        app.kubernetes.io/version: "10.5"
+        app.kubernetes.io/component: database
+        app.kubernetes.io/part-of: bookstack
+    spec:
+      containers:
+        - name: bookstack
+          image: mariadb:10.5
+          ports:
+            - name: http
+              containerPort: 3306
+              protocol: TCP
+          env:
+            - name: MYSQL_DATABASE
+              value: bookstackapp
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: bookstack-database
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: bookstack-database
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: root
+                  name: bookstack-database
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: mariadb-data
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+  labels:
+    app.kubernetes.io/name: mariadb
+    app.kubernetes.io/instance: mariadb-example
+    app.kubernetes.io/version: "10.5"
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: bookstack
+spec:
+  selector:
+    app.kubernetes.io/name: mariadb
+    app.kubernetes.io/instance: mariadb-example
+    app.kubernetes.io/version: "10.5"
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: bookstack
+  ports:
+    - name: http
+      port: 3306
+      targetPort: 3306
+      protocol: TCP
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mariadb-data
+  labels:
+    app.kubernetes.io/name: mariadb
+    app.kubernetes.io/instance: mariadb-example
+    app.kubernetes.io/version: "10.5"
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: bookstack
+spec:
+  resources:
+    requests:
+      storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+#  storageClassName:
