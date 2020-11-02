@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookstack
+  labels:
+    app.kubernetes.io/name: bookstack
+    app.kubernetes.io/instance: bookstack-example
+    app.kubernetes.io/version: version-v0.30.4
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: bookstack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bookstack
+      app.kubernetes.io/instance: bookstack-example
+      app.kubernetes.io/version: version-v0.30.4
+      app.kubernetes.io/component: server
+      app.kubernetes.io/part-of: bookstack
+  template:
+    metadata:
+      name: bookstack
+      labels:
+        app.kubernetes.io/name: bookstack
+        app.kubernetes.io/instance: bookstack-example
+        app.kubernetes.io/version: version-v0.30.4
+        app.kubernetes.io/component: server
+        app.kubernetes.io/part-of: bookstack
+    spec:
+      containers:
+        - name: bookstack
+          image: linuxserver/bookstack:version-v0.30.4
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          env:
+            - name: DB_HOST
+              value: mariadb
+            - name: DB_DATABASE
+              value: bookstackapp
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: bookstack-database
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: bookstack-database
+          volumeMounts:
+            - mountPath: /config
+              name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: bookstack-data
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookstack
+  labels:
+    app.kubernetes.io/name: bookstack
+    app.kubernetes.io/instance: bookstack-example
+    app.kubernetes.io/version: version-v0.30.4
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: bookstack
+spec:
+#  externalIPs:
+#    -
+  selector:
+    app.kubernetes.io/name: bookstack
+    app.kubernetes.io/instance: bookstack-example
+    app.kubernetes.io/version: version-v0.30.4
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: bookstack
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bookstack-data
+  labels:
+    app.kubernetes.io/name: bookstack
+    app.kubernetes.io/instance: bookstack-example
+    app.kubernetes.io/version: version-v0.30.4
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: bookstack
+spec:
+  resources:
+    requests:
+      storage: 2Gi
+  accessModes:
+    - ReadWriteMany
+#  storageClassName:
