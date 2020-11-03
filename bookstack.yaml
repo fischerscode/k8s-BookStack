@@ -34,6 +34,8 @@ spec:
               containerPort: 80
               protocol: TCP
           env:
+#            - name: APP_URL
+#              value: "https://example.com/wiki"
             - name: DB_HOST
               value: mariadb
             - name: DB_DATABASE
@@ -56,6 +58,7 @@ spec:
             timeoutSeconds: 1
             initialDelaySeconds: 5
             periodSeconds: 15
+            failureThreshold: 20
 
           livenessProbe:
             httpGet:
