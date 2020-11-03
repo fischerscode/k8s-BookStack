@@ -18,6 +18,11 @@ jobs:
           kubernetes version: 'v1.19.2'
           github token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install socat
+        run: |
+          sudo apt update
+          sudo apt install socat
+
       - name: Create a new namespace
         run: kubectl create ns bookstack
 
