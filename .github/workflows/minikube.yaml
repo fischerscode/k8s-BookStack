@@ -38,5 +38,16 @@ jobs:
       - name: Deploy BookStack
         run: kubectl apply -f bookstack.yaml -n bookstack
 
-      - name: Wait for bookstack to come online
+      - name: Wait a bit
         run: kubectl wait --for=condition=available deployment/bookstack -n bookstack --timeout=180s
+
+      - name: log mariadb
+        run: kubectl logs deployment/mariadb -n bookstack
+
+      - name: log bookstack
+        run: kubectl logs deployment/bookstack -n bookstack
+
+      - name: make sure bookstack is running
+        run: |
+          kubectl port-forward service/bookstack -n bookstack 8080:80 &
+          curl http://localhost:8080 --fail
