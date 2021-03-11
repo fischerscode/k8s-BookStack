@@ -75,7 +75,6 @@ spec:
   selector:
     app.kubernetes.io/name: mariadb
     app.kubernetes.io/instance: mariadb-example
-    app.kubernetes.io/version: "10.5"
     app.kubernetes.io/component: database
     app.kubernetes.io/part-of: bookstack
   ports:

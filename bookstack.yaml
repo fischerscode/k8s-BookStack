@@ -95,7 +95,6 @@ spec:
   selector:
     app.kubernetes.io/name: bookstack
     app.kubernetes.io/instance: bookstack-example
-    app.kubernetes.io/version: version-v0.31.7
     app.kubernetes.io/component: server
     app.kubernetes.io/part-of: bookstack
   ports:
